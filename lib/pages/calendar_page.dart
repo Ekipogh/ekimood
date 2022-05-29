@@ -29,7 +29,7 @@ class _CalendarPageState extends State<CalendarPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TableCalendar(
-              key: Key("calendar"),
+              key: const Key("calendar"),
               focusedDay: _focusedDay,
               firstDay: kFirstDay,
               lastDay: kLastDay,
