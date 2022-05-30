@@ -26,6 +26,7 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       body: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TableCalendar(
@@ -34,6 +35,15 @@ class _CalendarPageState extends State<CalendarPage> {
               firstDay: kFirstDay,
               lastDay: kLastDay,
               calendarFormat: _calendarFormat,
+              calendarBuilders:
+                  CalendarBuilders(defaultBuilder: (context, day, focusedDay) {
+                return Column(
+                  children: [
+                    Text(day.day.toString()),
+                    const Icon(Icons.sentiment_satisfied)
+                  ],
+                );
+              }),
               onDaySelected: (selectedDay, focusedDay) {
                 if (!isSameDay(_selectedDay, selectedDay)) {
                   // Call `setState()` when updating the selected day
