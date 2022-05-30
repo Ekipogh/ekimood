@@ -77,6 +77,7 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        key: const Key("main_button"),
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
