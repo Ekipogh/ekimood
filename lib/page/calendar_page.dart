@@ -57,8 +57,35 @@ class _CalendarPageState extends State<CalendarPage> {
                 firstDay: kFirstDay,
                 lastDay: kLastDay,
                 calendarFormat: _calendarFormat,
-                calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, day, focusedDay) {
+                calendarBuilders:
+                    CalendarBuilders(todayBuilder: (context, day, focusedDay) {
+                  return FutureBuilder(
+                    future: Mood.findByDate(day),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        Mood mood = snapshot.data as Mood;
+                        return Column(
+                          children: [
+                            Text(
+                              day.day.toString(),
+                              style: const TextStyle(color: Colors.cyan),
+                            ),
+                            _icons[mood.rating]
+                          ],
+                        );
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            day.day.toString(),
+                            style: const TextStyle(color: Colors.cyan),
+                          ),
+                          const Icon(Icons.circle)
+                        ],
+                      );
+                    },
+                  );
+                }, defaultBuilder: (context, day, focusedDay) {
                   return FutureBuilder(
                       future: Mood.findByDate(day),
                       builder: (context, snapshot) {
@@ -72,6 +99,35 @@ class _CalendarPageState extends State<CalendarPage> {
                         return Column(
                           children: [
                             Text(day.day.toString()),
+                            const Icon(
+                              Icons.circle,
+                              color: Colors.grey,
+                            )
+                          ],
+                        );
+                      });
+                }, selectedBuilder: (context, selectedDay, focusedDay) {
+                  return FutureBuilder(
+                      future: Mood.findByDate(selectedDay),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          Mood mood = snapshot.data as Mood;
+                          return Column(
+                            children: [
+                              Text(
+                                selectedDay.day.toString(),
+                                style: const TextStyle(
+                                    backgroundColor: Colors.lightBlue),
+                              ),
+                              _icons[mood.rating]
+                            ],
+                          );
+                        }
+                        return Column(
+                          children: [
+                            Text(selectedDay.day.toString(),
+                                style: const TextStyle(
+                                    backgroundColor: Colors.lightBlue)),
                             const Icon(
                               Icons.circle,
                               color: Colors.grey,
@@ -100,6 +156,9 @@ class _CalendarPageState extends State<CalendarPage> {
                     });
                   }
                 },
+                enabledDayPredicate: (day) {
+                  return !day.isAfter(DateTime.now());
+                },
                 selectedDayPredicate: (day) {
                   // Use `selectedDayPredicate` to determine which day is currently selected.
                   // If this returns true, then `day` will be marked as selected.
@@ -118,10 +177,11 @@ class _CalendarPageState extends State<CalendarPage> {
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      AddMoodPage(selectedDay: _selectedDay)));
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AddMoodPage(selectedDay: _selectedDay)))
+              .then((value) => setState(() {}));
         },
       ),
     );

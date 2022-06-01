@@ -72,6 +72,7 @@ class _AddMoodPageState extends State<AddMoodPage> {
                       onPressed: () {
                         Mood(date: widget.selectedDay, rating: rating.toInt())
                             .save();
+                        Navigator.pop(context);
                       },
                       child: const Text("Save"))
                 ],
