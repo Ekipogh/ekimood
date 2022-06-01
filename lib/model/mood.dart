@@ -25,6 +25,10 @@ class Mood extends Equatable {
 
   save() async {
     final db = await MoodDB.instance.database;
+    var mood = await Mood.findByDate(date);
+    if (mood != null) {
+      await mood.remove();
+    }
     final id = await db.insert("mood", toMap());
     return id;
   }
@@ -38,4 +42,9 @@ class Mood extends Equatable {
 
   @override
   List<Object?> get props => [id, date, rating];
+
+  Future<int> remove() async {
+    final db = await MoodDB.instance.database;
+    return await db.delete("mood", where: 'id = ?', whereArgs: [id]);
+  }
 }
