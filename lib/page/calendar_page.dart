@@ -1,0 +1,189 @@
+import 'package:ekimood/model/mood.dart';
+import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../utils.dart';
+import './add_mood_page.dart';
+
+class CalendarPage extends StatefulWidget {
+  const CalendarPage({Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  State<CalendarPage> createState() => _CalendarPageState();
+}
+
+class _CalendarPageState extends State<CalendarPage> {
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  DateTime _focusedDay = DateTime.now();
+
+  DateTime _selectedDay = DateTime.now();
+
+  final List<Icon> _icons = [
+    const Icon(
+      Icons.sentiment_very_dissatisfied,
+      color: Colors.red,
+    ),
+    const Icon(
+      Icons.sentiment_dissatisfied,
+      color: Colors.orange,
+    ),
+    const Icon(
+      Icons.sentiment_neutral,
+      color: Colors.yellow,
+    ),
+    const Icon(
+      Icons.sentiment_satisfied,
+      color: Colors.lightGreen,
+    ),
+    const Icon(Icons.sentiment_very_satisfied, color: Colors.green)
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: TableCalendar(
+                key: const Key("calendar"),
+                focusedDay: _focusedDay,
+                firstDay: kFirstDay,
+                lastDay: kLastDay,
+                calendarFormat: _calendarFormat,
+                calendarBuilders:
+                    CalendarBuilders(todayBuilder: (context, day, focusedDay) {
+                  return FutureBuilder(
+                    future: Mood.findByDate(day),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        Mood mood = snapshot.data as Mood;
+                        return Column(
+                          children: [
+                            Text(
+                              day.day.toString(),
+                              style: const TextStyle(color: Colors.cyan),
+                            ),
+                            _icons[mood.rating]
+                          ],
+                        );
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            day.day.toString(),
+                            style: const TextStyle(color: Colors.cyan),
+                          ),
+                          const Icon(Icons.circle)
+                        ],
+                      );
+                    },
+                  );
+                }, defaultBuilder: (context, day, focusedDay) {
+                  return FutureBuilder(
+                      future: Mood.findByDate(day),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          Mood mood = snapshot.data as Mood;
+                          return Column(children: [
+                            Text(day.day.toString()),
+                            _icons[mood.rating]
+                          ]);
+                        }
+                        return Column(
+                          children: [
+                            Text(day.day.toString()),
+                            const Icon(
+                              Icons.circle,
+                              color: Colors.grey,
+                            )
+                          ],
+                        );
+                      });
+                }, selectedBuilder: (context, selectedDay, focusedDay) {
+                  return FutureBuilder(
+                      future: Mood.findByDate(selectedDay),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          Mood mood = snapshot.data as Mood;
+                          return Column(
+                            children: [
+                              Text(
+                                selectedDay.day.toString(),
+                                style: const TextStyle(
+                                    backgroundColor: Colors.lightBlue),
+                              ),
+                              _icons[mood.rating]
+                            ],
+                          );
+                        }
+                        return Column(
+                          children: [
+                            Text(selectedDay.day.toString(),
+                                style: const TextStyle(
+                                    backgroundColor: Colors.lightBlue)),
+                            const Icon(
+                              Icons.circle,
+                              color: Colors.grey,
+                            )
+                          ],
+                        );
+                      });
+                }),
+                onDaySelected: (selectedDay, focusedDay) {
+                  if (!isSameDay(_selectedDay, selectedDay)) {
+                    // Call `setState()` when updating the selected day
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    // Call `setState()` when updating calendar format
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                enabledDayPredicate: (day) {
+                  return !day.isAfter(DateTime.now());
+                },
+                selectedDayPredicate: (day) {
+                  // Use `selectedDayPredicate` to determine which day is currently selected.
+                  // If this returns true, then `day` will be marked as selected.
+
+                  // Using `isSameDay` is recommended to disregard
+                  // the time-part of compared DateTime objects.
+                  return isSameDay(_selectedDay, day);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        key: const Key("main_button"),
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AddMoodPage(selectedDay: _selectedDay)))
+              .then((value) => setState(() {}));
+        },
+      ),
+    );
+  }
+}
