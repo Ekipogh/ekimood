@@ -30,7 +30,7 @@ class MoodDB {
   Future _onCreate(Database db, int version) async {
     await db.execute('''CREATE TABLE mood(
     id INTEGER PRIMARY KEY,
-    date TEXT NOT NULL,
+    date TEXT NOT NULL UNIQUE,
     rating INTEGER NOT NULL)''');
   }
 }
