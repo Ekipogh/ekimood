@@ -61,80 +61,19 @@ class _CalendarPageState extends State<CalendarPage> {
                     CalendarBuilders(todayBuilder: (context, day, focusedDay) {
                   return FutureBuilder(
                     future: Mood.findByDate(day),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        Mood mood = snapshot.data as Mood;
-                        return Column(
-                          children: [
-                            Text(
-                              day.day.toString(),
-                              style: const TextStyle(color: Colors.cyan),
-                            ),
-                            _icons[mood.rating]
-                          ],
-                        );
-                      }
-                      return Column(
-                        children: [
-                          Text(
-                            day.day.toString(),
-                            style: const TextStyle(color: Colors.cyan),
-                          ),
-                          const Icon(Icons.circle)
-                        ],
-                      );
-                    },
+                    builder: (context, snapshot) =>
+                        calendarIcon(day.day, snapshot.data as Mood?),
                   );
                 }, defaultBuilder: (context, day, focusedDay) {
                   return FutureBuilder(
                       future: Mood.findByDate(day),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          Mood mood = snapshot.data as Mood;
-                          return Column(children: [
-                            Text(day.day.toString()),
-                            _icons[mood.rating]
-                          ]);
-                        }
-                        return Column(
-                          children: [
-                            Text(day.day.toString()),
-                            const Icon(
-                              Icons.circle,
-                              color: Colors.grey,
-                            )
-                          ],
-                        );
-                      });
+                      builder: (context, snapshot) =>
+                          calendarIcon(day.day, snapshot.data as Mood?));
                 }, selectedBuilder: (context, selectedDay, focusedDay) {
                   return FutureBuilder(
                       future: Mood.findByDate(selectedDay),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          Mood mood = snapshot.data as Mood;
-                          return Column(
-                            children: [
-                              Text(
-                                selectedDay.day.toString(),
-                                style: const TextStyle(
-                                    backgroundColor: Colors.lightBlue),
-                              ),
-                              _icons[mood.rating]
-                            ],
-                          );
-                        }
-                        return Column(
-                          children: [
-                            Text(selectedDay.day.toString(),
-                                style: const TextStyle(
-                                    backgroundColor: Colors.lightBlue)),
-                            const Icon(
-                              Icons.circle,
-                              color: Colors.grey,
-                            )
-                          ],
-                        );
-                      });
+                      builder: (context, snapshot) => calendarIcon(
+                          selectedDay.day, snapshot.data as Mood?, true));
                 }),
                 onDaySelected: (selectedDay, focusedDay) {
                   if (!isSameDay(_selectedDay, selectedDay)) {
@@ -184,6 +123,32 @@ class _CalendarPageState extends State<CalendarPage> {
               .then((value) => setState(() {}));
         },
       ),
+    );
+  }
+
+  Widget calendarIcon(int day, Mood? mood, [bool selected = false]) {
+    Text dayText;
+    if (selected) {
+      dayText = Text(
+        day.toString(),
+        style: const TextStyle(color: Colors.lightBlue),
+      );
+    } else {
+      dayText = Text(day.toString());
+    }
+    if (mood != null) {
+      return Column(
+        children: [dayText, _icons[mood.rating]],
+      );
+    }
+    return Column(
+      children: [
+        dayText,
+        const Icon(
+          Icons.circle,
+          color: Colors.grey,
+        )
+      ],
     );
   }
 }
