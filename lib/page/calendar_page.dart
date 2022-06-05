@@ -2,7 +2,7 @@ import 'package:ekimood/model/mood.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../utils.dart';
-import './add_mood_page.dart';
+import 'mood_page.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key, required this.title}) : super(key: key);
@@ -14,10 +14,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
-
-  DateTime _focusedDay = DateTime.now();
-
-  DateTime _selectedDay = DateTime.now();
+  final DateTime _selectedDay = DateTime.now();
 
   final List<Icon> _icons = [
     const Icon(
@@ -53,7 +50,6 @@ class _CalendarPageState extends State<CalendarPage> {
             Center(
               child: TableCalendar(
                 key: const Key("calendar"),
-                focusedDay: _focusedDay,
                 firstDay: kFirstDay,
                 lastDay: kLastDay,
                 calendarFormat: _calendarFormat,
@@ -76,16 +72,18 @@ class _CalendarPageState extends State<CalendarPage> {
                           selectedDay.day, snapshot.data as Mood?, true));
                 }),
                 onDaySelected: (selectedDay, focusedDay) {
-                  if (!isSameDay(_selectedDay, selectedDay)) {
-                    // Call `setState()` when updating the selected day
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
+                  // if (!isSameDay(_selectedDay, selectedDay)) {
+                  //   // Call `setState()` when updating the selected day
+                  //   setState(() {
+                  //     _selectedDay = selectedDay;
+                  //   });
+                  // }
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  MoodPage(date: selectedDay)))
+                      .then((value) => setState(() {}));
                 },
                 onFormatChanged: (format) {
                   if (_calendarFormat != format) {
@@ -106,22 +104,11 @@ class _CalendarPageState extends State<CalendarPage> {
                   // the time-part of compared DateTime objects.
                   return isSameDay(_selectedDay, day);
                 },
+                focusedDay: _selectedDay,
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        key: const Key("main_button"),
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          AddMoodPage(selectedDay: _selectedDay)))
-              .then((value) => setState(() {}));
-        },
       ),
     );
   }
