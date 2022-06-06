@@ -27,5 +27,6 @@ void main() {
     await tester.tap(find.byType(Icon).last);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key("mood_page")), findsOneWidget);
+    expect(find.text(format.format(date)), findsOneWidget);
   });
 }
