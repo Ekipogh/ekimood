@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ekimood/main.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   testWidgets('Test the main screen with calendar',
@@ -19,10 +20,12 @@ void main() {
     expect(find.byKey(const Key("calendar")), findsOneWidget);
   });
   testWidgets("Test main calendar button", (WidgetTester tester) async {
+    DateTime date = DateTime.now();
+    DateFormat format = DateFormat.yMMMd();
     await tester.pumpWidget(const MyApp());
-    // Click on a floating button
-    await tester.tap(find.byKey(const Key("main_button")));
+    await tester.tap(find.byType(Icon).last);
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key("add_mood_page")), findsOneWidget);
+    expect(find.byKey(const Key("mood_page")), findsOneWidget);
+    expect(find.text(format.format(date)), findsOneWidget);
   });
 }

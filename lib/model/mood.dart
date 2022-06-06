@@ -1,12 +1,11 @@
 import 'package:ekimood/db/mood_database.dart';
-import 'package:equatable/equatable.dart';
 
-class Mood extends Equatable {
-  const Mood({this.id, required this.date, required this.rating});
+class Mood{
+  Mood({this.id, required this.date, required this.rating});
 
   final int? id;
   final DateTime date;
-  final int rating;
+  late int rating;
 
   Map<String, dynamic> toMap() {
     return {
@@ -39,9 +38,6 @@ class Mood extends Equatable {
         .query("mood", where: 'date = ?', whereArgs: [date.toIso8601String()]);
     return res.isNotEmpty ? Mood.fromMap(res.first) : null;
   }
-
-  @override
-  List<Object?> get props => [id, date, rating];
 
   Future<int> remove() async {
     final db = await MoodDB.instance.database;
