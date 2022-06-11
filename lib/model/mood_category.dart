@@ -1,13 +1,15 @@
-import 'package:ekimood/model/category_icons.dart';
+import 'package:ekimood/model/category_icon.dart';
 
 abstract class MoodCategory {
-  MoodCategory({required this.name});
+  MoodCategory({this.id, required this.name, this.moodId});
 
+  int? id;
   String name;
-  Map<CategoryIcon, bool> icons = {};
+  List<CategoryIcon> icons = [];
+  int? moodId;
 
   void addIcon(CategoryIcon icon) {
-    icons[icon] = false;
+    icons.add(icon);
   }
 
   void removeIcon(CategoryIcon icon) {
@@ -15,4 +17,11 @@ abstract class MoodCategory {
   }
 
   void selectIcon(CategoryIcon selectIcon);
+
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "icons": [for (var icon in icons) icon.toMap()]
+    };
+  }
 }

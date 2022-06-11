@@ -1,4 +1,4 @@
-import 'package:ekimood/model/category_icons.dart';
+import 'package:ekimood/model/category_icon.dart';
 
 import 'mood_category.dart';
 
@@ -7,9 +7,9 @@ class RadioCategory extends MoodCategory {
 
   @override
   void selectIcon(CategoryIcon selectIcon) {
-    for (CategoryIcon icon in icons.keys) {
-      icons[icon] = false;
+    for (CategoryIcon icon in icons) {
+      icon.selected = false;
     }
-    icons[selectIcon] = true;
+    selectIcon.selected = true;
   }
 }

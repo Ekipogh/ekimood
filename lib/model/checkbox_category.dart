@@ -1,4 +1,4 @@
-import 'package:ekimood/model/category_icons.dart';
+import 'package:ekimood/model/category_icon.dart';
 import 'mood_category.dart';
 
 class CheckboxCategory extends MoodCategory {
@@ -6,7 +6,6 @@ class CheckboxCategory extends MoodCategory {
 
   @override
   void selectIcon(CategoryIcon selectIcon) {
-    bool selection = icons[selectIcon]!;
-    icons[selectIcon] = !selection;
+    selectIcon.selected = !selectIcon.selected;
   }
 }

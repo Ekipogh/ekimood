@@ -1,4 +1,5 @@
 import 'package:ekimood/db/mood_database.dart';
+import 'package:ekimood/model/mood_category.dart';
 
 class Mood{
   Mood({this.id, required this.date, required this.rating});
@@ -6,6 +7,7 @@ class Mood{
   final int? id;
   final DateTime date;
   late int rating;
+  List<MoodCategory> categories = [];
 
   Map<String, dynamic> toMap() {
     return {

@@ -31,6 +31,17 @@ class MoodDB {
     await db.execute('''CREATE TABLE mood(
     id INTEGER PRIMARY KEY,
     date TEXT NOT NULL UNIQUE,
-    rating INTEGER NOT NULL)''');
+    rating INTEGER NOT NULL);''');
+    await db.execute('''CREATE TABLE categories(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    moodId INTEGER,
+    FOREIGN KEY(moodId) REFERENCES mood(id));''');
+    await db.execute('''CREATE TABLE icons(
+    id INTEGER PRIMARY KEY,
+    selected INTEGER NOT NULL,
+    icon INTEGER NOT NULL,
+    categoryId INTEGER,
+    FOREIGN KEY(categoryId) REFERENCES categories(id));''');
   }
 }
