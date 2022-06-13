@@ -52,7 +52,7 @@ class Mood {
         await db.query("categories", where: 'moodId = ?', whereArgs: [id]);
     if (res.isNotEmpty) {
       for (var element in res) {
-        MoodCategory category = MoodCategory.fromMap(element);
+        MoodCategory category = await MoodCategory.fromMap(element).fillIcons();
         categories.add(category);
       }
     }

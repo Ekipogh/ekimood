@@ -1,3 +1,4 @@
+import 'package:ekimood/db/mood_database.dart';
 import 'package:ekimood/model/category_icon.dart';
 
 enum CategoryType {
@@ -49,5 +50,18 @@ class MoodCategory {
   static MoodCategory fromMap(Map<String, dynamic> map) {
     return MoodCategory(
         id: map["id"], name: map["name"], moodId: map["moodId"]);
+  }
+
+  Future<MoodCategory> fillIcons() async {
+    final db = await MoodDB.instance.database;
+    final res =
+        await db.query("icons", where: "categoryId = ?", whereArgs: [id]);
+    if (res.isNotEmpty) {
+      for (var element in res) {
+        CategoryIcon icon = CategoryIcon.fromMap(element);
+        icons.add(icon);
+      }
+    }
+    return this;
   }
 }
