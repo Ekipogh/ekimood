@@ -26,10 +26,9 @@ class _MoodPageState extends State<MoodPage> {
         child: FutureBuilder<Mood?>(
           future: _getMood(widget.date),
           builder: (context, snapshot) {
+            mood = Mood(date: widget.date, rating: rating.toInt());
             if (snapshot.hasData) {
               mood = snapshot.data as Mood;
-            } else {
-              mood = Mood(date: widget.date, rating: rating.toInt());
             }
             double displayRating = mood!.rating.toDouble() + 1;
             return Form(
@@ -76,12 +75,25 @@ class _MoodPageState extends State<MoodPage> {
                         mood?.rating = value.toInt() - 1;
                       },
                     ),
+                    IconButton(
+                      splashRadius: 20,
+                      onPressed: () {},
+                      icon: const Icon(Icons.add),
+                      color: Colors.green,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                          itemCount: mood!.categories.length,
+                          itemBuilder: (context, index) {
+                            return Text(mood!.categories[index].name);
+                          }),
+                    ),
                     ElevatedButton(
                         onPressed: () {
                           mood!.save();
                           Navigator.pop(context);
                         },
-                        child: const Text("Save"))
+                        child: const Text("Save")),
                   ],
                 ),
               ),
