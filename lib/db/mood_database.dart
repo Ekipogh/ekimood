@@ -1,3 +1,4 @@
+import 'package:ekimood/model/mood_category.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -32,9 +33,9 @@ class MoodDB {
     id INTEGER PRIMARY KEY,
     date TEXT NOT NULL UNIQUE,
     rating INTEGER NOT NULL);''');
-    await db.execute('''CREATE TABLE category(
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    await db.execute('''CREATE TABLE ${MoodCategory.tableName} (
+    ${MoodCategory.idField} INTEGER PRIMARY KEY,
+    ${MoodCategory.nameField} TEXT NOT NULL
     );''');
     await db.execute('''CREATE TABLE icon(
     id INTEGER PRIMARY KEY,
@@ -45,10 +46,13 @@ class MoodDB {
     await db.execute('''CREATE TABLE data(
     id INTEGER PRIMARY KEY,
     moodId INTEGER,
+    categoryId INTEGER,
     iconId INTEGER,
     selected INTEGER NOT NULL,
     FOREIGN KEY(moodId) REFERENCES mood(id),
+    FOREIGN KEY(categoryId) REFERENCES category(id),
     FOREIGN KEY(iconId) REFERENCES icons(id)
     );''');
+    MoodCategory.initDefaultCategories();
   }
 }
