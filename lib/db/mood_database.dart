@@ -1,4 +1,5 @@
 import 'package:ekimood/model/mood_category.dart';
+import 'package:ekimood/model/mood_icon.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -29,17 +30,20 @@ class MoodDB {
   }
 
   Future _onCreate(Database db, int version) async {
+    // Mood table
     await db.execute('''CREATE TABLE mood(
     id INTEGER PRIMARY KEY,
     date TEXT NOT NULL UNIQUE,
     rating INTEGER NOT NULL);''');
+    // Categories table
     await db.execute('''CREATE TABLE ${MoodCategory.tableName} (
     ${MoodCategory.idField} INTEGER PRIMARY KEY,
     ${MoodCategory.nameField} TEXT NOT NULL
     );''');
-    await db.execute('''CREATE TABLE icon(
-    id INTEGER PRIMARY KEY,
-    icon INTEGER NOT NULL,
+    // Icons table
+    await db.execute('''CREATE TABLE ${MoodIcon.tableName}(
+    ${MoodIcon.idField} INTEGER PRIMARY KEY,
+    ${MoodIcon.iconField} INTEGER NOT NULL,
     categoryId INTEGER,
     FOREIGN KEY(categoryId) REFERENCES categories(id)
     );''');

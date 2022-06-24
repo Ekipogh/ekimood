@@ -2,21 +2,21 @@ import 'package:ekimood/db/mood_database.dart';
 import 'package:ekimood/model/mood_icon.dart';
 
 class MoodCategory {
+  static List<MoodCategory> categoriesList = [];
   static String tableName = "category";
   static var idField = "id";
   static var nameField = "name";
 
-  MoodCategory(
-      {this.id,
-      required this.name,
-      this.moodId,
-      this.type = CategoryType.radio});
+  MoodCategory({
+    this.id,
+    required this.name,
+    this.moodId,
+  });
 
   int? id;
   String name;
   List<MoodIcon> icons = [];
   int? moodId;
-  CategoryType type;
 
   void addIcon(MoodIcon icon) {
     icons.add(icon);
@@ -27,12 +27,7 @@ class MoodCategory {
   }
 
   selectIcon(MoodIcon selectIcon) {
-    if (type == CategoryType.radio) {
-      for (MoodIcon icon in icons) {
-        icon.selected = false;
-      }
-    }
-    selectIcon.selected = true;
+    selectIcon.selected = !selectIcon.selected;
   }
 
   Map<String, dynamic> toMap() {
@@ -53,7 +48,7 @@ class MoodCategory {
         await db.query("icons", where: "categoryId = ?", whereArgs: [id]);
     if (res.isNotEmpty) {
       for (var element in res) {
-        MoodIcon icon = MoodIcon.fromMap(element);
+        MoodIcon icon = await MoodIcon.fromMap(element);
         icons.add(icon);
       }
     }
@@ -67,9 +62,9 @@ class MoodCategory {
 
   static void initDefaultCategories() {
     MoodCategory weather = MoodCategory(name: "Weather");
-    MoodIcon sunny = MoodIcon(icon: MoodIcons.sunny);
-    MoodIcon cloudy = MoodIcon(icon: MoodIcons.cloudy);
-    MoodIcon raining = MoodIcon(icon: MoodIcons.raining);
+    MoodIcon sunny = MoodIcon(icon: MoodIcons.sunny, category: weather);
+    MoodIcon cloudy = MoodIcon(icon: MoodIcons.cloudy, category: weather);
+    MoodIcon raining = MoodIcon(icon: MoodIcons.raining, category: weather);
     weather.addIcon(sunny);
     weather.addIcon(cloudy);
     weather.addIcon(raining);
@@ -85,5 +80,13 @@ class MoodCategory {
         return icon;
       }
     }
+    return null;
+  }
+
+  static Future<MoodCategory?> findCategoryById(int categoryId) async {
+    final db = await MoodDB().database;
+    final res = await db
+        .query(tableName, where: "$idField = ?", whereArgs: [categoryId]);
+    return res.isNotEmpty ? MoodCategory.fromMap(res.first) : null;
   }
 }
