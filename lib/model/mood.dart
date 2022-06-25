@@ -4,7 +4,9 @@ import 'package:ekimood/model/mood_icon.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Mood {
-  Mood({this.id, required this.date, required this.rating});
+  Mood({this.id, required this.date, required this.rating}){
+    fillCategories();
+  }
 
   static String tableName = "mood";
   static String idField = "id";

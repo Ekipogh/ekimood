@@ -10,7 +10,6 @@ class MoodCategory {
   MoodCategory({
     this.id,
     required this.name,
-    this.moodId,
   });
 
   int? id;
@@ -33,13 +32,12 @@ class MoodCategory {
   Map<String, dynamic> toMap() {
     return {
       "name": name,
-      "icons": [for (var icon in icons) icon.toMap()]
     };
   }
 
   static MoodCategory fromMap(Map<String, dynamic> map) {
     return MoodCategory(
-        id: map["id"], name: map["name"], moodId: map["moodId"]);
+        id: map["id"], name: map["name"]);
   }
 
   void fillIcons() async {

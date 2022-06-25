@@ -35,9 +35,9 @@ class MoodIcon {
   ];
 
   Map<String, dynamic> toMap() {
+    //TODO:  Save data?
     return {
       iconField: icon.toString(),
-      selectedField: selected ? 1 : 0,
       categoryIdField: category.id,
     };
   }

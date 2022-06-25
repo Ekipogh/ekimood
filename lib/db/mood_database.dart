@@ -3,6 +3,8 @@ import 'package:ekimood/model/mood_icon.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../model/mood.dart';
+
 class MoodDB {
   static final MoodDB instance = MoodDB._init();
 
@@ -31,10 +33,10 @@ class MoodDB {
 
   Future _onCreate(Database db, int version) async {
     // Mood table
-    await db.execute('''CREATE TABLE mood(
-    id INTEGER PRIMARY KEY,
-    date TEXT NOT NULL UNIQUE,
-    rating INTEGER NOT NULL);''');
+    await db.execute('''CREATE TABLE ${Mood.tableName}(
+    ${Mood.idField} INTEGER PRIMARY KEY,
+    ${Mood.dateField} TEXT NOT NULL UNIQUE,
+    ${Mood.ratingField} INTEGER NOT NULL);''');
     // Categories table
     await db.execute('''CREATE TABLE ${MoodCategory.tableName} (
     ${MoodCategory.idField} INTEGER PRIMARY KEY,
@@ -44,8 +46,8 @@ class MoodDB {
     await db.execute('''CREATE TABLE ${MoodIcon.tableName}(
     ${MoodIcon.idField} INTEGER PRIMARY KEY,
     ${MoodIcon.iconField} INTEGER NOT NULL,
-    categoryId INTEGER,
-    FOREIGN KEY(categoryId) REFERENCES categories(id)
+    ${MoodIcon.categoryIdField} INTEGER,
+    FOREIGN KEY(${MoodIcon.categoryIdField}) REFERENCES ${MoodCategory.tableName}(${MoodCategory.idField})
     );''');
     await db.execute('''CREATE TABLE data(
     id INTEGER PRIMARY KEY,
@@ -53,9 +55,9 @@ class MoodDB {
     categoryId INTEGER,
     iconId INTEGER,
     selected INTEGER NOT NULL,
-    FOREIGN KEY(moodId) REFERENCES mood(id),
-    FOREIGN KEY(categoryId) REFERENCES category(id),
-    FOREIGN KEY(iconId) REFERENCES icons(id)
+    FOREIGN KEY(moodId) REFERENCES ${Mood.tableName}(${Mood.idField}),
+    FOREIGN KEY(categoryId) REFERENCES ${MoodCategory.tableName}(${MoodCategory.idField}),
+    FOREIGN KEY(iconId) REFERENCES ${MoodIcon.tableName}(${MoodIcon.idField})
     );''');
     MoodCategory.initDefaultCategories();
   }
