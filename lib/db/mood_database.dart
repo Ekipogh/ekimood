@@ -1,4 +1,5 @@
 import 'package:ekimood/model/mood_category.dart';
+import 'package:ekimood/model/mood_data.dart';
 import 'package:ekimood/model/mood_icon.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -49,15 +50,15 @@ class MoodDB {
     ${MoodIcon.categoryIdField} INTEGER,
     FOREIGN KEY(${MoodIcon.categoryIdField}) REFERENCES ${MoodCategory.tableName}(${MoodCategory.idField})
     );''');
-    await db.execute('''CREATE TABLE data(
-    id INTEGER PRIMARY KEY,
-    moodId INTEGER,
-    categoryId INTEGER,
-    iconId INTEGER,
-    selected INTEGER NOT NULL,
-    FOREIGN KEY(moodId) REFERENCES ${Mood.tableName}(${Mood.idField}),
-    FOREIGN KEY(categoryId) REFERENCES ${MoodCategory.tableName}(${MoodCategory.idField}),
-    FOREIGN KEY(iconId) REFERENCES ${MoodIcon.tableName}(${MoodIcon.idField})
+    await db.execute('''CREATE TABLE ${MoodData.tableName}(
+    ${MoodData.idField} INTEGER PRIMARY KEY,
+    ${MoodData.moodIdField} INTEGER,
+    ${MoodData.categoryIdField} INTEGER,
+    ${MoodData.iconIdField} INTEGER,
+    ${MoodData.selectedField} INTEGER NOT NULL,
+    FOREIGN KEY(${MoodData.moodIdField}) REFERENCES ${Mood.tableName}(${Mood.idField}),
+    FOREIGN KEY(${MoodData.categoryIdField}) REFERENCES ${MoodCategory.tableName}(${MoodCategory.idField}),
+    FOREIGN KEY(${MoodData.iconIdField}) REFERENCES ${MoodIcon.tableName}(${MoodIcon.idField})
     );''');
     MoodCategory.initDefaultCategories();
   }

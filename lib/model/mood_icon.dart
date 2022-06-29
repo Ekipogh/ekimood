@@ -1,38 +1,34 @@
-import 'dart:ffi';
-
 import 'package:ekimood/db/mood_database.dart';
 import 'package:ekimood/model/mood_category.dart';
 import 'package:flutter/material.dart';
 
 class MoodIcons {
-  static Icon sunny = MoodIcon._iconShelf[0];
-  static Icon cloudy = MoodIcon._iconShelf[1];
-  static Icon raining = MoodIcon._iconShelf[2];
+  static final List<Icon> _iconShelf = [
+    const Icon(Icons.sunny),
+    const Icon(Icons.cloud),
+    const Icon(Icons.cloudy_snowing)
+  ];
+  static Icon sunny = _iconShelf[0];
+  static Icon cloudy = _iconShelf[1];
+  static Icon raining = _iconShelf[2];
+
+  static Icon get(int index) {
+    return _iconShelf[index];
+  }
 }
 
 class MoodIcon {
   static String tableName = "icon";
   static String idField = "id";
   static String iconField = "icon";
-  static String selectedField = "selected";
   static String categoryIdField = "categoryId";
+  static List<MoodIcon> iconList = [];
 
-  MoodIcon(
-      {this.id,
-      required this.icon,
-      this.selected = false,
-      required this.category});
+  MoodIcon({this.id, required this.icon, required this.category});
 
   int? id;
-  bool selected;
   Icon icon;
   MoodCategory category;
-
-  static final List<Icon> _iconShelf = [
-    const Icon(Icons.sunny),
-    const Icon(Icons.cloud),
-    const Icon(Icons.cloudy_snowing)
-  ];
 
   Map<String, dynamic> toMap() {
     //TODO:  Save data?
@@ -42,12 +38,10 @@ class MoodIcon {
     };
   }
 
-  static Future<MoodIcon> fromMap(Map<String, dynamic> map) async {
-    MoodCategory? category =
-        await MoodCategory.findCategoryById(map[categoryIdField] as int);
+  static MoodIcon fromMap(Map<String, dynamic> map) {
+    MoodCategory? category = MoodCategory.findCategoryById(map["categoryId"]);
     return MoodIcon(
-        icon: _iconShelf[map[iconField]],
-        selected: map[selectedField] == "1" ? true : false,
+        icon: MoodIcons.get(map[iconField]),
         id: map[idField],
         category: category!);
   }
@@ -57,5 +51,13 @@ class MoodIcon {
     final db = await MoodDB.instance.database;
     final id = await db.insert(MoodIcon.tableName, toMap());
     return id;
+  }
+
+  static loadIcons() async {
+    final db = await MoodDB().database;
+    final res = await db.query(tableName);
+    for (var row in res) {
+      iconList.add(MoodIcon.fromMap(row));
+    }
   }
 }

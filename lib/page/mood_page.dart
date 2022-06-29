@@ -1,3 +1,4 @@
+import 'package:ekimood/model/mood_category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -83,9 +84,10 @@ class _MoodPageState extends State<MoodPage> {
                     ),
                     Expanded(
                       child: ListView.builder(
-                          itemCount: mood!.categories.length,
+                          itemCount: MoodCategory.categoriesList.length,
                           itemBuilder: (context, index) {
-                            return Text(mood!.categories[index].name);
+                            return Text(
+                                MoodCategory.categoriesList[index].name);
                           }),
                     ),
                     ElevatedButton(
