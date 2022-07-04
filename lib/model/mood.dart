@@ -15,10 +15,10 @@ class Mood {
   static String dateField = "date";
   static String ratingField = "rating";
 
-  final int? id;
+  late int? id;
   final DateTime date;
   late int rating;
-  late List<MoodData> data;
+  late List<MoodData> data = [];
 
   Map<String, dynamic> toMap() {
     return {
@@ -47,6 +47,7 @@ class Mood {
     for (MoodData dataElement in data) {
       await dataElement.save();
     }
+    this.id = id;
     return id;
   }
 

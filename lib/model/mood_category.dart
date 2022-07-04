@@ -11,13 +11,13 @@ class MoodCategory {
     this.id,
     required this.name,
   }) {
-    categoriesList.add(this);
+    addToCategoryList(this);
     fillIcons();
   }
 
-  final int? id;
+  late int? id;
   final String name;
-  late List<MoodIcon> icons;
+  late List<MoodIcon> icons = [];
 
   Map<String, dynamic> toMap() {
     return {
@@ -41,19 +41,20 @@ class MoodCategory {
   save() async {
     final db = await MoodDB.instance.database;
     final id = await db.insert(MoodCategory.tableName, toMap());
+    this.id = id;
     return id;
   }
 
-  static void initDefaultCategories() {
+  static Future<void> initDefaultCategories() async {
     MoodCategory weather = MoodCategory(name: "Weather");
+    await weather.save();
     MoodIcon sunny = MoodIcon(icon: MoodIcons.sunny, category: weather);
     MoodIcon cloudy = MoodIcon(icon: MoodIcons.cloudy, category: weather);
     MoodIcon raining = MoodIcon(icon: MoodIcons.raining, category: weather);
+    await sunny.save();
+    await cloudy.save();
+    await raining.save();
     weather.fillIcons();
-    sunny.save();
-    cloudy.save();
-    raining.save();
-    weather.save();
   }
 
   MoodIcon? findIconById(int id) {
@@ -80,7 +81,13 @@ class MoodCategory {
     final res = await db.query(tableName);
     for (var row in res) {
       MoodCategory category = MoodCategory.fromMap(row);
-      categoriesList.add(category);
+      addToCategoryList(category);
+    }
+  }
+
+  static void addToCategoryList(MoodCategory moodCategory) {
+    if (!categoriesList.contains(moodCategory)) {
+      categoriesList.add(moodCategory);
     }
   }
 }

@@ -82,14 +82,17 @@ class _MoodPageState extends State<MoodPage> {
                       icon: const Icon(Icons.add),
                       color: Colors.green,
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: MoodCategory.categoriesList.length,
-                          itemBuilder: (context, index) {
-                            return Text(
-                                MoodCategory.categoriesList[index].name);
-                          }),
-                    ),
+                    ListView.builder(
+                        itemCount: MoodCategory.categoriesList.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: ListTile(
+                              title:
+                                  Text(MoodCategory.categoriesList[index].name),
+                            ),
+                          );
+                        }),
                     ElevatedButton(
                         onPressed: () {
                           mood!.save();

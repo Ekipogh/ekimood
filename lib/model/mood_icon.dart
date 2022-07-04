@@ -15,6 +15,15 @@ class MoodIcons {
   static Icon get(int index) {
     return _iconShelf[index];
   }
+
+  static int getIndex(Icon icon) {
+    for (var index = 0; index < _iconShelf.length; index++) {
+      if (_iconShelf[index] == icon) {
+        return index;
+      }
+    }
+    return -1;
+  }
 }
 
 class MoodIcon {
@@ -24,16 +33,17 @@ class MoodIcon {
   static String categoryIdField = "categoryId";
   static List<MoodIcon> iconList = [];
 
-  MoodIcon({this.id, required this.icon, required this.category});
+  MoodIcon({this.id, required this.icon, required this.category}) {
+    addToIconsList(this);
+  }
 
   int? id;
   Icon icon;
   MoodCategory category;
 
   Map<String, dynamic> toMap() {
-    //TODO:  Save data?
     return {
-      iconField: icon.toString(),
+      iconField: MoodIcons.getIndex(icon),
       categoryIdField: category.id,
     };
   }
@@ -50,6 +60,7 @@ class MoodIcon {
     // save the icon
     final db = await MoodDB.instance.database;
     final id = await db.insert(MoodIcon.tableName, toMap());
+    this.id = id;
     return id;
   }
 
@@ -58,6 +69,12 @@ class MoodIcon {
     final res = await db.query(tableName);
     for (var row in res) {
       iconList.add(MoodIcon.fromMap(row));
+    }
+  }
+
+  static void addToIconsList(MoodIcon icon) {
+    if (!iconList.contains(icon)) {
+      iconList.add(icon);
     }
   }
 }
