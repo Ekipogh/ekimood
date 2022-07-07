@@ -1,3 +1,6 @@
+import 'package:ekimood/model/mood_category.dart';
+import 'package:ekimood/model/mood_data.dart';
+import 'package:ekimood/model/mood_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -21,15 +24,23 @@ class _MoodPageState extends State<MoodPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("mood_page"),
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: const Icon(Icons.edit),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back))
+        ],
+      ),
       body: Center(
         child: FutureBuilder<Mood?>(
           future: _getMood(widget.date),
           builder: (context, snapshot) {
+            mood = Mood(date: widget.date, rating: rating.toInt());
             if (snapshot.hasData) {
               mood = snapshot.data as Mood;
-            } else {
-              mood = Mood(date: widget.date, rating: rating.toInt());
             }
             double displayRating = mood!.rating.toDouble() + 1;
             return Form(
@@ -76,12 +87,26 @@ class _MoodPageState extends State<MoodPage> {
                         mood?.rating = value.toInt() - 1;
                       },
                     ),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: mood?.data.length,
+                        itemBuilder: (context, index) {
+                          MoodData data = mood!.data[index];
+                          return Card(
+                            child: ListTile(
+                              leading: Text(data.category.name),
+                              title: Row(
+                                children: _iconRow(data),
+                              ),
+                            ),
+                          );
+                        }),
                     ElevatedButton(
                         onPressed: () {
                           mood!.save();
                           Navigator.pop(context);
                         },
-                        child: const Text("Save"))
+                        child: const Text("Save")),
                   ],
                 ),
               ),
@@ -94,5 +119,25 @@ class _MoodPageState extends State<MoodPage> {
 
   Future<Mood?> _getMood(DateTime date) async {
     return await Mood.findByDate(date);
+  }
+
+  List<Widget> _iconRow(MoodData data) {
+    MoodCategory category = data.category;
+    List<Widget> row = [];
+    for (MoodIcon icon in category.icons) {
+      bool selected = data.getSelected(icon);
+      IconButton iconButton = IconButton(
+        onPressed: () {
+          setState(() {
+            data.select(icon);
+          });
+        },
+        icon: icon.icon,
+        //TODO: change the colors
+        color: selected ? Colors.black : Colors.grey,
+      );
+      row.add(iconButton);
+    }
+    return row;
   }
 }

@@ -1,61 +1,83 @@
 import 'package:ekimood/db/mood_database.dart';
 import 'package:ekimood/model/mood_category.dart';
 
-class Mood {
-  Mood({this.id, required this.date, required this.rating});
+import 'mood_data.dart';
 
-  final int? id;
+class Mood {
+  Mood({this.id, required this.date, required this.rating}) {
+    for (MoodCategory category in MoodCategory.categoriesList) {
+      data.add(MoodData(category: category, mood: this));
+    }
+  }
+
+  static String tableName = "mood";
+  static String idField = "id";
+  static String dateField = "date";
+  static String ratingField = "rating";
+
+  late int? id;
   final DateTime date;
   late int rating;
-  List<MoodCategory> categories = [];
+  late List<MoodData> data = [];
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'date': date.toIso8601String(),
-      'rating': rating,
+      idField: id,
+      dateField: date.toIso8601String(),
+      ratingField: rating,
     };
   }
 
   static Mood fromMap(Map<String, dynamic> map) {
     return Mood(
-        id: map["id"],
-        date: DateTime.parse(map["date"]),
-        rating: map["rating"]);
+        id: map[idField],
+        date: DateTime.parse(map[dateField]),
+        rating: map[ratingField]);
   }
 
   save() async {
     final db = await MoodDB.instance.database;
     var mood = await Mood.findByDate(date);
+    // Replace existing mood
     if (mood != null) {
       await mood.remove();
     }
-    final id = await db.insert("mood", toMap());
+    final id = await db.insert(tableName, toMap());
+    // Save data
+    for (MoodData dataElement in data) {
+      await dataElement.save();
+    }
+    this.id = id;
     return id;
   }
 
   static Future<Mood?> findByDate(DateTime date) async {
     final db = await MoodDB.instance.database;
-    final res = await db
-        .query("mood", where: 'date = ?', whereArgs: [date.toIso8601String()]);
-    return res.isNotEmpty ? Mood.fromMap(res.first).fillCategories() : null;
+    final res = await db.query(tableName,
+        where: '$dateField = ?', whereArgs: [date.toIso8601String()]);
+    if (res.isNotEmpty) {
+      Mood mood = Mood.fromMap(res.first);
+      mood.loadData();
+      return mood;
+    }
+    return null;
   }
 
   Future<int> remove() async {
     final db = await MoodDB.instance.database;
-    return await db.delete("mood", where: 'id = ?', whereArgs: [id]);
+    return await db.delete(tableName, where: '$idField = ?', whereArgs: [id]);
   }
 
-  Future<Mood> fillCategories() async {
-    final db = await MoodDB.instance.database;
-    final res =
-        await db.query("categories", where: 'moodId = ?', whereArgs: [id]);
-    if (res.isNotEmpty) {
-      for (var element in res) {
-        MoodCategory category = await MoodCategory.fromMap(element).fillIcons();
-        categories.add(category);
+  loadData() async {
+    final db = await MoodDB().database;
+    for (var dataElement in data) {
+      final res = await db.query(MoodData.tableName,
+          where: '${MoodData.moodIdField} = ? AND ${MoodData.categoryIdField}',
+          whereArgs: [id, dataElement.category.id]);
+      for (var row in res) {
+        dataElement.set(row[MoodData.iconIdField] as int,
+            row[MoodData.selectedField] == "0" ? false : true);
       }
     }
-    return this;
   }
 }

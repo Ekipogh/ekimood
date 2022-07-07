@@ -1,67 +1,99 @@
 import 'package:ekimood/db/mood_database.dart';
-import 'package:ekimood/model/category_icon.dart';
-
-enum CategoryType {
-  radio(0),
-  checkbox(1);
-
-  const CategoryType(this.type);
-
-  final num type;
-}
+import 'package:ekimood/model/mood_icon.dart';
 
 class MoodCategory {
-  MoodCategory(
-      {this.id,
-      required this.name,
-      this.moodId,
-      this.type = CategoryType.radio});
+  static List<MoodCategory> categoriesList = [];
+  static String tableName = "category";
+  static String idField = "id";
+  static String nameField = "name";
 
-  int? id;
-  String name;
-  List<CategoryIcon> icons = [];
-  int? moodId;
-  CategoryType type;
-
-  void addIcon(CategoryIcon icon) {
-    icons.add(icon);
+  MoodCategory({
+    this.id,
+    required this.name,
+  }) {
+    addToCategoryList(this);
+    fillIcons();
   }
 
-  void removeIcon(CategoryIcon icon) {
-    icons.remove(icon);
-  }
-
-  selectIcon(CategoryIcon selectIcon) {
-    if (type == CategoryType.radio) {
-      for (CategoryIcon icon in icons) {
-        icon.selected = false;
-      }
-    }
-    selectIcon.selected = true;
-  }
+  late int? id;
+  final String name;
+  late List<MoodIcon> icons = [];
 
   Map<String, dynamic> toMap() {
     return {
-      "name": name,
-      "icons": [for (var icon in icons) icon.toMap()]
+      idField: id,
+      nameField: name,
     };
   }
 
   static MoodCategory fromMap(Map<String, dynamic> map) {
-    return MoodCategory(
-        id: map["id"], name: map["name"], moodId: map["moodId"]);
+    return MoodCategory(id: map[idField], name: map[nameField]);
   }
 
-  Future<MoodCategory> fillIcons() async {
-    final db = await MoodDB.instance.database;
-    final res =
-        await db.query("icons", where: "categoryId = ?", whereArgs: [id]);
-    if (res.isNotEmpty) {
-      for (var element in res) {
-        CategoryIcon icon = CategoryIcon.fromMap(element);
+  void fillIcons() {
+    for (var icon in MoodIcon.iconList) {
+      if (icon.category == this) {
         icons.add(icon);
       }
     }
-    return this;
+  }
+
+  save() async {
+    final db = await MoodDB.instance.database;
+    final id = await db.insert(MoodCategory.tableName, toMap());
+    this.id = id;
+    return id;
+  }
+
+  static Future<void> initDefaultCategories() async {
+    MoodCategory weather = MoodCategory(name: "Weather");
+    await weather.save();
+    MoodIcon sunny = MoodIcon(icon: MoodIcons.sunny, category: weather);
+    MoodIcon cloudy = MoodIcon(icon: MoodIcons.cloudy, category: weather);
+    MoodIcon raining = MoodIcon(icon: MoodIcons.raining, category: weather);
+    await sunny.save();
+    await cloudy.save();
+    await raining.save();
+    weather.fillIcons();
+  }
+
+  MoodIcon? findIconById(int id) {
+    for (var icon in icons) {
+      if (icon.id == id) {
+        return icon;
+      }
+    }
+    return null;
+  }
+
+  static MoodCategory? findCategoryById(int categoryId) {
+    for (var category in categoriesList) {
+      if (category.id == categoryId) {
+        return category;
+      }
+    }
+    return null;
+  }
+
+  static loadCategories() async {
+    categoriesList = [];
+    final db = await MoodDB().database;
+    final res = await db.query(tableName);
+    for (var row in res) {
+      MoodCategory category = MoodCategory.fromMap(row);
+      addToCategoryList(category);
+    }
+  }
+
+  static void addToCategoryList(MoodCategory moodCategory) {
+    if (!categoriesList.contains(moodCategory)) {
+      categoriesList.add(moodCategory);
+    }
+  }
+
+  static void fillAllIcons() {
+    for (var category in categoriesList) {
+      category.fillIcons();
+    }
   }
 }

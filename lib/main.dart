@@ -1,9 +1,17 @@
+import 'package:ekimood/model/mood_category.dart';
+import 'package:ekimood/model/mood_icon.dart';
 import 'package:flutter/material.dart';
 import "package:ekimood/page/calendar_page.dart";
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initLists();
   runApp(const MyApp());
+}
+
+initLists() async {
+  await MoodCategory.loadCategories();
+  await MoodIcon.loadIcons();
 }
 
 class MyApp extends StatelessWidget {
