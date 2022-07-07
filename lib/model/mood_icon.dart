@@ -70,6 +70,7 @@ class MoodIcon {
     for (var row in res) {
       iconList.add(MoodIcon.fromMap(row));
     }
+    MoodCategory.fillAllIcons();
   }
 
   static void addToIconsList(MoodIcon icon) {

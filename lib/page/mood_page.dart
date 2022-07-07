@@ -1,4 +1,6 @@
 import 'package:ekimood/model/mood_category.dart';
+import 'package:ekimood/model/mood_data.dart';
+import 'package:ekimood/model/mood_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +24,16 @@ class _MoodPageState extends State<MoodPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("mood_page"),
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: const Icon(Icons.edit),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back))
+        ],
+      ),
       body: Center(
         child: FutureBuilder<Mood?>(
           future: _getMood(widget.date),
@@ -76,20 +87,17 @@ class _MoodPageState extends State<MoodPage> {
                         mood?.rating = value.toInt() - 1;
                       },
                     ),
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: () {},
-                      icon: const Icon(Icons.add),
-                      color: Colors.green,
-                    ),
                     ListView.builder(
-                        itemCount: MoodCategory.categoriesList.length,
                         shrinkWrap: true,
+                        itemCount: mood?.data.length,
                         itemBuilder: (context, index) {
+                          MoodData data = mood!.data[index];
                           return Card(
                             child: ListTile(
-                              title:
-                                  Text(MoodCategory.categoriesList[index].name),
+                              leading: Text(data.category.name),
+                              title: Row(
+                                children: _iconRow(data),
+                              ),
                             ),
                           );
                         }),
@@ -111,5 +119,25 @@ class _MoodPageState extends State<MoodPage> {
 
   Future<Mood?> _getMood(DateTime date) async {
     return await Mood.findByDate(date);
+  }
+
+  List<Widget> _iconRow(MoodData data) {
+    MoodCategory category = data.category;
+    List<Widget> row = [];
+    for (MoodIcon icon in category.icons) {
+      bool selected = data.getSelected(icon);
+      IconButton iconButton = IconButton(
+        onPressed: () {
+          setState(() {
+            data.select(icon);
+          });
+        },
+        icon: icon.icon,
+        //TODO: change the colors
+        color: selected ? Colors.black : Colors.grey,
+      );
+      row.add(iconButton);
+    }
+    return row;
   }
 }

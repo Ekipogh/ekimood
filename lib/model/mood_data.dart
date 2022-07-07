@@ -38,4 +38,12 @@ class MoodData {
   void set(int iconId, bool selected) {
     map[iconId] = selected;
   }
+
+  bool getSelected(MoodIcon icon) {
+    return map[icon.id]!;
+  }
+
+  void select(MoodIcon icon) {
+    map[icon.id!] = !map[icon.id]!;
+  }
 }

@@ -90,4 +90,10 @@ class MoodCategory {
       categoriesList.add(moodCategory);
     }
   }
+
+  static void fillAllIcons() {
+    for (var category in categoriesList) {
+      category.fillIcons();
+    }
+  }
 }
